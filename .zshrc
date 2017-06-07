@@ -2,7 +2,8 @@
 #source $ZDOTDIR/.zshaliases
 #alias
 alias gcc='gcc -Wall -g'
-alias ls='ls -FCGBa'
+alias ls='ls -FCGBa --color'
+alias ll='ls -la --color'
 alias less='less -sIx4XFR'
 
 function memogrep(){
@@ -18,6 +19,7 @@ alias makec='make clean all'
 alias grep='grep -i --color'
 alias df='df -h'
 alias ipy='ipython --pylab'
+alias ps='ps auxw'
 function del () {
     mv $* ~/.Trash/
 }
