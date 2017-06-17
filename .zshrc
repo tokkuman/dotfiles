@@ -4,7 +4,8 @@
 alias gcc='gcc -Wall -g'
 alias ls='ls -FCGBa --color'
 alias ll='ls -la --color'
-alias less='less -sIx4XFR'
+alias less='less -sIx4FRM'
+#alias less='less -sIx4XFR'
 
 function memogrep(){
     $HOME/git/memogrep/memogrep.py -i -q "$HOME/Library/Containers/com.happenapps.Quiver/Data/Library/Application Support/Quiver/Quiver.qvlibrary" $@ | less
@@ -23,7 +24,7 @@ alias ps='ps auxw'
 function del () {
     mv $* ~/.Trash/
 }
-alias rm='del'
+alias poi='del'
 #alias ps='ps --sort==start_time'
 #alias rm='rm -i'
 #unalias rm
