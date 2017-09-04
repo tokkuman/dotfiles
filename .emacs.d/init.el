@@ -1,25 +1,4 @@
-;;; for Debug ~/.emacs.d/init.el ;;;
-;; (setq stack-trace-on-error t)
-;; (setq debug-on-error)
-
-; GUI から起動された Emacs の path が正しく渡らないための設定
-; 下に記述したものが PATH の先頭に追加される
-(dolist (dir (list
-              "/sbin"
-              "/usr/sbin"
-              "/bin"
-              "/usr/bin"
-              "/usr/local/bin"
-              "/opt/local/bin"
-              (expand-file-name "~/bin")
-              (expand-file-name "~/.emacs.d/bin")
-              ))
-; PATH と exec-path に同じ物を追加
-(when (and (file-exists-p dir) (not (member dir exec-path)))
-  (setenv "PATH" (concat dir ":" (getenv "PATH")))
-  (setq exec-path (append (list dir) exec-path))))
-
-;; ;;; el-get ;;;
+;;; el-get ;;;
 ;; M-x el-get-list-packages でパッケージのリストを表示、i を押して x でinstall
 ;; el-get インストール後のロードパスの用意
 (add-to-list 'load-path "~/.emacs.d/el-get/el-get")
@@ -64,8 +43,8 @@
 (define-key global-map (kbd "C-x SPC") 'cua-set-rectangle-mark)
 
 ;;; key bind ;;;
-(global-set-key "\C-z" 'undo)
 (global-set-key "\C-h" 'delete-backward-char)
+(global-set-key "\M-z" 'undo)
 (global-set-key "\M-\C-h" 'backward-kill-word)
 (global-set-key "\M-h" 'help-for-help)
 (global-set-key "\M-g" 'goto-line)
@@ -86,52 +65,52 @@
 
 
 ;;; MacOS で emacs を開いた場合 ;;;
-(when (eq system-type 'darwin)
-  ;;; Command keyをMetaに
-  (setq ns-command-modifier 'meta))
+ (when (eq system-type 'darwin)
+   ;;; Command keyをMetaに
+   (setq ns-command-modifier 'meta))
 
-;;; GUI版Emacs (emacs.app) の場合 ;;;
-(if window-system (progn ;progn は以下のフォームを逐次実行
+ ;;; GUI版Emacs (emacs.app) の場合 ;;;
+ (if window-system (progn ;progn は以下のフォームを逐次実行
 
-  (custom-set-faces ;C-x 5 2 等で新しく Window を開いたときの設定
-    '(default ((t (:background "gray10" :foreground "lightcyan"))))
-    '(cursor (
-           (((class color) (background dark )) (:background "lime green"))
-           (((class color) (background light)) (:background "lime green"))
-           (t ())
-           )))
-  ;; Master Display の設定
-  (set-foreground-color "lightcyan")
-  (set-background-color "gray10")
-  (set-cursor-color "lime green")
-  ;; 起動時のディスプレイサイズ変更(環境に応じて適宜変更)
-  (set-frame-height (next-frame) 50)
-  (set-frame-width (next-frame) 80)
-  ;; メニューバーを隠す
-  (tool-bar-mode -1)
-  ;; デフォルトの透明度を設定する (80%)
-  (add-to-list 'default-frame-alist '(alpha . 80))
-  ;; カレントウィンドウの透明度を変更する (85%)
-  (set-frame-parameter nil 'alpha 85)
-  ;;; 画像ファイルを表示する
-  (auto-image-file-mode t)
-  ;;行番号表示
-  (require 'linum)
-  (global-linum-mode t)
-;;  (set-face-attribute 'linum nil
-                      :foreground "gray60"
-                      :height 0.9)
+   (custom-set-faces ;C-x 5 2 等で新しく Window を開いたときの設定
+     '(default ((t (:background "gray10" :foreground "lightcyan"))))
+     '(cursor (
+            (((class color) (background dark )) (:background "lime green"))
+            (((class color) (background light)) (:background "lime green"))
+            (t ())
+            )))
+   ;; Master Display の設定
+   (set-foreground-color "lightcyan")
+   (set-background-color "gray10")
+   (set-cursor-color "lime green")
+   ;; 起動時のディスプレイサイズ変更(環境に応じて適宜変更)
+   (set-frame-height (next-frame) 50)
+   (set-frame-width (next-frame) 80)
+   ;; メニューバーを隠す
+   (tool-bar-mode -1)
+   ;; デフォルトの透明度を設定する (80%)
+   (add-to-list 'default-frame-alist '(alpha . 80))
+   ;; カレントウィンドウの透明度を変更する (85%)
+   (set-frame-parameter nil 'alpha 85)
+   ;;; 画像ファイルを表示する
+   (auto-image-file-mode t)
+   ;;行番号表示
+   (require 'linum)
+   (global-linum-mode t)
+ ;;  (set-face-attribute 'linum nil
+                       :foreground "gray60"
+                       :height 0.9)
 
-  ;; Font
-  (create-fontset-from-ascii-font "Menlo-14:weight=normal:slant=normal" nil "menlomarugo")
-  (set-fontset-font "fontset-menlomarugo"
-                    'unicode
-                    (font-spec :family "Hiragino Maru Gothic ProN" :size 14)
-                    nil
-                    'append)
-  (add-to-list 'default-frame-alist '(font . "fontset-menlomarugo"))
-  ) (menu-bar-mode -1)
-)
+   ;; Font
+   ;; (create-fontset-from-ascii-font "Menlo-14:weight=normal:slant=normal" nil "menlomarugo")
+   ;; (set-fontset-font "fontset-menlomarugo"
+   ;;                   'unicode
+   ;;                   (font-spec :family "Hiragino Maru Gothic ProN" :size 14)
+   ;;                   nil
+   ;;                   'append)
+   ;; (add-to-list 'default-frame-alist '(font . "fontset-menlomarugo"))
+   ;; ) (menu-bar-mode -1)
+ )
 
 
 ;;; 環境設定 (共通設定2) ;;;
@@ -195,22 +174,8 @@
           'executable-make-buffer-file-executable-if-script-p)
 
 ;; ;;; 画面右端で折り返さない
-;; (setq-default truncate-lines t)
-;; (setq truncate-partial-width-windows t)
-
-;;; 自動でスペルチェック
-;; M-x ispell-buffer で buffer 全体をスペルチェック
-;; M-x ispell-region で region をスペルチェック
-(setq ispell-program-name "/opt/local/bin/ispell")
-(setq flyspell-issue-message-flag nil)
-(setq ispell-dictionary "american")
-;; flyspell text-mode
-(add-hook
- 'text-mode-hook 'flyspell-mode)
-;; flyspell program mode
-(add-hook
- 'prog-mode-hook 'flyspell-prog-mode)
-
+(setq-default truncate-lines t)
+(setq truncate-partial-width-windows t)
 
 
 ;; c-mode や c++-mode など cc-mode ベースのモード共通の設定
@@ -251,18 +216,18 @@
   (setq show-trailing-whitespace t)
   ))
 
-;;; CUDA
+;;; CUDA ;;;
 (setq auto-mode-alist
     (cons (cons "\\.cu$" 'c++-mode) auto-mode-alist))
 
 ;;; GDB ;;;
-(add-hook 'gdb-mode-hook
-          '(lambda ()
-             (setq gdb-many-windows t)
-             (setq gud-gdb-command-name "ggdb -i=mi")
-             (local-set-key "\C-p" 'comint-previous-input)
-             (local-set-key "\C-n" 'comint-next-input)
-             ))
+;; (add-hook 'gdb-mode-hook
+;;           '(lambda ()
+;;              (setq gdb-many-windows t)
+;;              (setq gud-gdb-command-name "ggdb -i=mi")
+;;              (local-set-key "\C-p" 'comint-previous-input)
+;;              (local-set-key "\C-n" 'comint-next-input)
+;;              ))
 ;;; tex 関連
 ;;; YaTeX ;;;
 (add-to-list 'load-path "~/.emacs.d/el-get/yatex")
@@ -277,191 +242,3 @@
 
 ;; Preview.app の使用
 (setq dvi2-command "open -a Preview")
-
-
-
-
-
-
-;;; flycheck : 自動でチェック ;;;
-;; melpa に登録されたレポジトリも M-x package-install 可能にする
-;; flycheck は C-c ! l で error 一覧表示
-;; flycheck は C-c ! p で `
-(require 'package)
-(add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/"))
-(fset 'package-desc-vers 'package--ac-desc-version)
-(package-initialize)
-
-(add-to-list 'load-path "~/.emacs.d/elpa/flycheck-20151026.342")
-(add-to-list 'load-path "~/.emacs.d/elpa/dash-20151021.113")
-(add-to-list 'load-path "~/.emacs.d/elpa/subr+-20150104.1655")
-(require 'flycheck)
-(add-hook 'after-init-hook #'global-flycheck-mode)
-
-;; 日本語で error message が出る場合の自作 flycheck
-(add-hook 'c-mode-common-hook 'flycheck-mode)
-(defmacro flycheck-define-clike-checker (name command modes)
-  `(flycheck-define-checker ,(intern (format "%s" name))
-     ,(format "A %s checker using %s" name (car command))
-     :command (,@command source-inplace)
-     :error-patterns
-     ((warning line-start (file-name) ":" line ":" column ": 警告:" (message) line-end)
-      (error line-start (file-name) ":" line ":" column ": エラー:" (message) line-end))
-     :modes ',modes))
-;; (flycheck-define-clike-checker c-gcc-ja
-;;              ("gcc" "-fsyntax-only" "-Wall" "-Wextra")
-;;              c-mode)
-;; (add-to-list 'flycheck-checkers 'c-gcc-ja)
-;; (flycheck-define-clike-checker c++-g++-ja
-;;              ("g++" "-fsyntax-only" "-Wall" "-Wextra" "-std=c++11")
-;;              c++-mode)
-;; (add-to-list 'flycheck-checkers 'c++-g++-ja)
-
-
-;; error message を popup で出す
-(add-to-list 'load-path "~/.emacs.d/elpa/flycheck-pos-tip-20140606.510")
-(add-to-list 'load-path "~/.emacs.d/elpa/popup-20150626.711")
-(eval-after-load 'flycheck
-  '(custom-set-variables
-   '(flycheck-display-errors-function #'flycheck-pos-tip-error-messages)))
-;;; end of flycheck ;;;
-
-
-
-;;; 補完 auto-complete 系 ;;;
-(add-to-list 'load-path "~/.emacs.d/el-get/auto-complete")
-(add-to-list 'load-path "~/.emacs.d/el-get/auto-complete-clang")
-(add-to-list 'load-path "~/.emacs.d/el-get/fuzzy")
-(add-to-list 'load-path "~/.emacs.d/el-get/popup")
-(add-to-list 'load-path "~/.emacs.d/el-get/yasnippet")
-(add-to-list 'load-path "~/.emacs.d/el-get/auto-complete-yasnippet")
-
-; 自分で設定した特定関数を key に合わせて tab で展開
-(require 'yasnippet)
-(yas-global-mode 1)
-
-(require 'auto-complete)
-(require 'auto-complete-config)
-(global-auto-complete-mode t)
-(ac-config-default)
-; 自動で補完を開始しない
-(setq ac-auto-start nil)
-; TAB を trigger にする
-(ac-set-trigger-key "TAB")
-; delay を無くす
-(setq ac-quick-help-delay 0)
-;; ; yasnippet の補完
- (add-hook 'yasnippet-mode-hook
- '(lambda ()
- (add-to-list 'ac-sources 'auto-complete-yasnippet)
- )
-; C-p C-n で候補移動
-(define-key ac-completing-map (kbd "C-n") 'ac-next)
-(define-key ac-completing-map (kbd "C-p") 'ac-previous)
-
-
-;;; auto complete clang mode ;;;
-(require 'auto-complete-clang)
-
-(defun my-ac-cc-mode-setup ()
-  ;;tなら自動で補完画面がでる．nilなら補完キーによって出る
-  (setq ac-auto-start nil)
-  (setq ac-clang-prefix-header "./stdafx.pch")
-  (setq ac-clang-flags '("-w" "-ferror-limit" "1"))
-  (setq ac-sources (append '(ac-source-clang
-			     ;;ac-source-yasnippet
-			     ac-source-gtags)
-			   ac-sources)))
-
-(defun my-ac-config ()
-  (global-set-key "\M-/" 'ac-start)
-  ;; C-n/C-p で候補を選択
-  (define-key ac-complete-mode-map "\C-n" 'ac-next)
-  (define-key ac-complete-mode-map "\C-p" 'ac-previous)
-
-  (setq-default ac-sources '(ac-source-abbrev
-			     ac-source-dictionary
-			     ac-source-words-in-same-mode-buffers))
-  (add-hook 'c++-mode-hook 'ac-cc-mode-setup)
-  (add-hook 'emacs-lisp-mode-hook 'ac-emacs-lisp-mode-setup)
-  (add-hook 'c-mode-common-hook 'my-ac-cc-mode-setup)
-  (add-hook 'ruby-mode-hook 'ac-css-mode-setup)
-  (add-hook 'auto-complete-mode-hook 'ac-common-setup)
-  (global-auto-complete-mode t))
-
-(my-ac-config)
-;;pathのプリコンパイルヘッダ作りかた
-;;clang++ -cc1 -emit-pch -x c++-header ./hoge.h -o stdafx.pch
-
-
-
-
-;;; python用 ;;;
-(add-to-list 'load-path "~/.emacs.d/el-get/python")
-(add-to-list 'load-path "~/.emacs.d/el-get/python-mode")
-(add-to-list 'load-path "~/.emacs.d/el-get/pymacs")
-(add-to-list 'load-path "~/.emacs.d/el-get/pycomplete")
-(add-to-list 'load-path "~/.emacs.d/el-get/ac-python")
-(autoload 'python-mode "python-mode" "Major mode for editing Python programs" t)
-(autoload 'py-shell "python-mode" "Python shell" t)
-(setq auto-mode-alist (cons '("\\.py\\'" . python-mode) auto-mode-alist))
-(autoload 'pymacs-apply "pymacs")
-(autoload 'pymacs-call "pymacs")
-(autoload 'pymacs-eval "pymacs" nil t)
-(autoload 'pymacs-exec "pymacs" nil t)
-(autoload 'pymacs-load "pymacs" nil t)
-(eval-after-load "pymacs"
-'(add-to-list 'pymacs-load-path "~/.emacs.d/el-get/pycomplete"))
-(add-hook 'python-mode-hook '(lambda ()
-(require 'pycomplete)
-(add-to-list 'ac-sources 'ac-python)
-;(setq indent-tabs-mode nil)
-))
-;; ;; python 最強の補完 jedi を active に
-;; 断念、次回挑戦したい auto-complete-mode との衝突が原因か
-;; (add-to-list 'load-path "~/.emacs.d/el-get/jedi")
-;; (add-to-list 'load-path "~/.emacs.d/el-get/")
-;; (add-to-list 'load-path "~/.emacs.d/el-get/epc")
-;; (add-to-list 'load-path "~/.emacs.d/el-get/ctable")
-;; (add-to-list 'load-path "~/.emacs.d/el-get/deferred")
-;; (setq jedi:server-command '("~/.emacs.d/el-get/jedi/jedipcserver.py"))
-;; (require jedi)
-;; (setq jedi:server-command '("~/.emacs.d/el-get/jedi/jedipcserver.py"))
-;; (add-hook 'python-mode-hook 'jedi:ac-setup)
-;; (setq jedi:complete-on-dot t); optional
-;; (define-key python-mode-map (kbd "<C-tab>") 'jedi:complete)
-
-
-
-;;; index highlight ;;;
-(add-to-list 'load-path "~/.emacs.d/el-get/highlight-indentation")
-(require 'highlight-indentation)
-(setq highlight-indentation-offset 2)
-;;(set-face-background 'highlight-indentation-face "#90ee90")
-(set-face-background 'highlight-indentation-face "#4b89d0")
-;;(set-face-background 'highlight-indentation-current-column-face "#008b45")
-(set-face-background 'highlight-indentation-current-column-face "#b22222")
-(add-hook 'highlight-indentation-mode-hook 'highlight-indentation-current-column-mode)
-
-(add-hook 'c++-mode-hook 'highlight-indentation-current-column-mode)
-(add-hook 'c-mode-hook 'highlight-indentation-current-column-mode)
-(add-hook 'python-mode-hook 'highlight-indentation-mode)
-(add-hook 'text-mode-hook 'highlight-indentation-mode)
-;;(add-hook 'prog-mode-hook 'highlight-indentation-mode)
-(add-hook 'gdb-mode-hook 'highlight-indentation-mode)
-(add-hook 'yatex-mode-hook 'highlight-indentation-mode)
-;;(add-hook 'emacs-lisp-mode-hook 'highlight-indentation-mode)
-
-;;; undo tree and hist
-;; (add-to-list 'load-path "~/.emacs.d/el-get/undohist")
-;; (add-to-list 'load-path "~/.emacs.d/el-get/undo-tree")
-;; ; undo の履歴を buffer を閉じても保持する
-;; (when (require 'undohist nil t)
-;;   (undohist-initialize))
-;; ; undo の樹形図を表示する C-x u
-;; (when (require 'undo-tree nil t)
-;;   (global-undo-tree-mode))
-
-
-;; ;;; undo list の制限を拡張する
-(setq undo-outer-limit 50000000)
