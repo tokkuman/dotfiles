@@ -4,8 +4,8 @@
 alias gcc='gcc -Wall -g'
 alias ls='ls -FCGBa --color'
 alias ll='ls -la --color'
-alias less='less -sIx4FRM'
-#alias less='less -sIx4XFR'
+alias less='less -sx4XR'
+#alias less='less -sIx4FRM'
 
 function memogrep(){
     $HOME/git/memogrep/memogrep.py -i -q "$HOME/Library/Containers/com.happenapps.Quiver/Data/Library/Application Support/Quiver/Quiver.qvlibrary" $@ | less
@@ -106,4 +106,21 @@ function gitblit() {
   fi
   unset nsip
   unset browser
+}
+
+eval "$(pyenv init -)"
+eval "$(pyenv virtualenv-init -)"
+
+function saveenv() {
+    dir=$(pyenv version | awk '{ print $1 }')
+    reqname="/requirements-${dir}.txt"
+    whlname="/wheelhouse-${dir}"
+    absdir="$HOME/SaveVirtualEnv/${dir}"
+    if [ -e ${absdir} ]; then
+	echo "Already Exist!!"
+    else
+	mkdir $absdir
+	pyenv exec pip freeze > ${absdir}${reqname}
+	pyenv exec pip wheel --wheel-dir=${absdir}${whlname} -r ${absdir}${reqname}
+    fi
 }
