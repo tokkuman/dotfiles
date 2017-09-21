@@ -21,6 +21,7 @@ alias grep='grep -i --color'
 alias df='df -h'
 alias ipy='ipython --pylab'
 alias ps='ps auxw'
+alias psh='pyenv shell'
 function del () {
     mv $* ~/.Trash/
 }
@@ -122,5 +123,17 @@ function saveenv() {
 	mkdir $absdir
 	pyenv exec pip freeze > ${absdir}${reqname}
 	pyenv exec pip wheel --wheel-dir=${absdir}${whlname} -r ${absdir}${reqname}
+    fi
+}
+
+function loadenv() {
+    if [ $1 = "" ]; then
+	echo "Specify Argument [env name]"
+    else
+	env=$1
+	absdir="$HOME/SaveVirtualEnv/${env}"
+	reqname="/requirements-${env}.txt"
+	whlname="/wheelhouse-${env}"
+	pyenv exec pip install -r ${absdir}${reqname} --use-wheel --no-index --find-links=${absdir}${whlname}
     fi
 }
