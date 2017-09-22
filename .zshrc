@@ -118,12 +118,16 @@ function saveenv() {
     whlname="/wheelhouse-${dir}"
     absdir="$HOME/SaveVirtualEnv/${dir}"
     if [ -e ${absdir} ]; then
-	echo "Already Exist!!"
-    else
-	mkdir $absdir
-	pyenv exec pip freeze > ${absdir}${reqname}
-	pyenv exec pip wheel --wheel-dir=${absdir}${whlname} -r ${absdir}${reqname}
+	echo "Already exist! Overwrite? [y/n]"
+	read rep
+	if [ ! $rep = 'y' ]; then
+	    return 0
+	fi
+	poi $absdir
     fi
+    mkdir $absdir
+    pyenv exec pip freeze > ${absdir}${reqname}
+    pyenv exec pip wheel --wheel-dir=${absdir}${whlname} -r ${absdir}${reqname}
 }
 
 function loadenv() {
