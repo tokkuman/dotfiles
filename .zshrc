@@ -2,8 +2,8 @@
 #source $ZDOTDIR/.zshaliases
 #alias
 alias gcc='gcc -Wall -g'
-alias ls='ls -FCGBa --color'
-alias ll='ls -la --color'
+alias ls='ls -FCGBa'
+alias ll='ls -FCGla'
 alias less='less -sx4XR'
 #alias less='less -sIx4FRM'
 
@@ -116,7 +116,7 @@ function saveenv() {
     dir=$(pyenv version | awk '{ print $1 }')
     reqname="/requirements-${dir}.txt"
     whlname="/wheelhouse-${dir}"
-    absdir="$HOME/SaveVirtualEnv/${dir}"
+    absdir="$HOME/Dropbox/SaveVirtualEnv/${dir}"
     if [ -e ${absdir} ]; then
 	echo "Already exist! Overwrite? [y/n]"
 	read rep
@@ -135,7 +135,7 @@ function loadenv() {
 	echo "Specify Argument [env name]"
     else
 	env=$1
-	absdir="$HOME/SaveVirtualEnv/${env}"
+	absdir="$HOME/Dropbox/SaveVirtualEnv/${env}"
 	reqname="/requirements-${env}.txt"
 	whlname="/wheelhouse-${env}"
 	pyenv exec pip install -r ${absdir}${reqname} --use-wheel --no-index --find-links=${absdir}${whlname}
