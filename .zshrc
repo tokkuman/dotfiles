@@ -141,3 +141,50 @@ function loadenv() {
 	pyenv exec pip install -r ${absdir}${reqname} --use-wheel --no-index --find-links=${absdir}${whlname}
     fi
 }
+
+ffmp4-speedup-filter () {
+  readonly local speed=$1
+  local v="[0:v]setpts=PTS/${speed}[v]"
+  if [ $speed -le 2 ]; then
+    local a="[0:a]atempo=${speed}[a]"
+  elif [ $speed -le 4 ]; then
+    local a="[0:a]atempo=2,atempo=$speed/2[a]"
+  elif [ $speed -le 8 ]; then
+    local a="[0:a]atempo=2,atempo=2,atempo=$speed/4[a]"
+  fi
+  noglob echo -filter_complex "$v;$a" -map [v] -map [a]
+}
+
+ffmp4-speedup () {
+  if [ $# -lt 2 ]; then
+    echo "Usage: $0 file speed"
+    echo "Convert movie(file) to nx playback mp4 file."
+    echo "(ex.) $0 input.mov 2"
+    echo "      will generate 2x playback mp4 file (input_x2.mp4)"
+    return
+  fi
+  red=`tput setaf 1; tput bold`
+  green=`tput setaf 2; tput bold`
+  reset=`tput sgr0`
+  readonly local src=$1
+  readonly local speed=$2
+  dst=${src:r}_x${speed}.mp4
+  readonly local config="-crf 23 -c:a aac -ar 44100 -b:a 64k -c:v libx264 -qcomp 0.9 -preset slow -tune film -threads auto -strict -2"
+  readonly local args="-v 0 -i $src $config $(ffmp4-speedup-filter $speed) $dst"
+  echo -n "Converting $src to ${speed}x playback as $dst ... "
+  ffmpeg `echo $args`
+  if [[ $? = 0 ]]; then
+    echo "${green}OK${reset}"
+  else
+    echo "${red}Failed${reset}"
+  fi
+}
+
+elatexmk() {
+  if [ $# -lt 1 ]; then
+    echo "Usage: $0 tex_file"
+    echo "Call latexmk with pdflatex. This function might be useful when you want to typeset TeX files in English."
+  else
+    latexmk -pvc -pdf -pdflatex="pdflatex -interaction=nonstopmode" $1
+  fi
+}
