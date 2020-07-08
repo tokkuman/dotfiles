@@ -1,14 +1,15 @@
-#alias
-#source $ZDOTDIR/.zshaliases
-#alias
 alias gcc='gcc -Wall -g'
 alias ls='ls -FCGBa'
 alias ll='ls -FCGla'
-alias less='less -sx4XR'
+#alias less='less -sx4XR'
 #alias less='less -sIx4FRM'
 
-function memogrep(){
-    $HOME/git/memogrep/memogrep.py -i -q "$HOME/Library/Containers/com.happenapps.Quiver/Data/Library/Application Support/Quiver/Quiver.qvlibrary" $@ | less
+function memogrep() {
+  if hash mdv >/dev/null 2>&1; then
+    memogrep.py -i -n 0 -b '#' $@ | mdv -t 881.4906 - | less -sIx4XF
+  else
+    memogrep.py -i $@ | less -sIx4XF
+  fi
 }
 
 function cdls(){
@@ -20,8 +21,10 @@ alias makec='make clean all'
 alias grep='grep -i --color'
 alias df='df -h'
 alias ipy='ipython --pylab'
+alias ipyn='ipython notebook'
 alias ps='ps auxw'
 alias psh='pyenv shell'
+alias d='cd ~/Downloads'
 function del () {
     mv $* ~/.Trash/
 }
@@ -188,3 +191,17 @@ elatexmk() {
     latexmk -pvc -pdf -pdflatex="pdflatex -interaction=nonstopmode" $1
   fi
 }
+
+
+function gi() { curl -fL https://www.gitignore.io/api/${(j:,:)@} }
+
+_gitignoreio_get_command_list() {
+  curl -sfL https://www.gitignore.io/api/list | tr "," "\n"
+}
+
+_gitignoreio () {
+  compset -P '*,'
+  compadd -S '' `_gitignoreio_get_command_list`
+}
+
+compdef _gitignoreio gi
