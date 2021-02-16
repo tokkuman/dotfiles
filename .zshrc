@@ -1,8 +1,9 @@
 alias gcc='gcc -Wall -g'
 alias ls='ls -FCGBa'
 alias ll='ls -FCGla'
-#alias less='less -sx4XR'
-#alias less='less -sIx4FRM'
+
+eval "$(pyenv init -)"
+eval "$(pyenv virtualenv-init -)"
 
 function memogrep() {
   if hash mdv >/dev/null 2>&1; then
@@ -29,36 +30,26 @@ function del () {
     mv $* ~/.Trash/
 }
 alias poi='del'
-#alias ps='ps --sort==start_time'
-#alias rm='rm -i'
-#unalias rm
-#emacs
-#alias emacs='/Applications/Emacs.app/Contents/MacOS/Emacs -nw'
-#vim
-#alias vim='/opt/local/bin/vim'
-#alias vi='/opt/local/bin/vim'
-
+alias gst='git status'
+alias gl='git log --oneline --graph --decorate'
 #alias cleardesktop='defaults write com.apple.finder CreateDesktop -boolean false'
 #alias appeardesktop='defaults write com.apple.finder CreateDesktop -boolean true'
 
 
-SAVEHIST=100000       #ヒストリ数
+SAVEHIST=100000
 HISTSIZE=100000
-#HISTFILE=~$ZDOTDIR/.zhistory
-#HISTFILE=~/.zhistory:.
 HISTFILE=~/.zhistory
 
-WORDCHARS=']$'             #/を区切り文字として設定
+WORDCHARS=']$'
 
-autoload -U colors      #プロンプトの色
+autoload -U colors
 colors
 PS1="%{${reset_color}%}%{${fg[green]}%}tokkuman%{${reset_color}%}%# "
 RPS1="%{${reset_color}%}[%{${fg[green]}%}%/%{${reset_color}%}][%{${fg[green]}%}%*%{${reset_color}%}]"
 autoload -U compinit promptinit
-#補完機能
-compinit
+compinit -u
 
-zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'  #大文字と小文字の区別をなくす
+zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
 
 setopt IGNORE_EOF          #ignore logout when C-d
 setopt SHARE_HISTORY       #share history
@@ -79,10 +70,6 @@ zle -N history-beginning-search-backward-end history-search-end
 zle -N history-beginning-search-forward-end history-search-end
 bindkey "^P" history-beginning-search-backward-end
 bindkey "^N" history-beginning-search-forward-end
-
-#zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
-#eval $(gdircolors)
-#zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}for f in `jot - 60 0 -1`;do printf "Please Wait:%8d" $f;sleep 1;done
 
 
 function getDefaultBrowser() {
@@ -112,8 +99,6 @@ function gitblit() {
   unset browser
 }
 
-eval "$(pyenv init -)"
-eval "$(pyenv virtualenv-init -)"
 
 function saveenv() {
     dir=$(pyenv version | awk '{ print $1 }')
@@ -204,4 +189,146 @@ _gitignoreio () {
   compadd -S '' `_gitignoreio_get_command_list`
 }
 
-compdef _gitignoreio gi
+
+# A zsh function which will check my proxy configuration.
+# Runs only on macOS.
+proxycheck() {
+  local red=`tput setaf 1; tput bold`
+  local green=`tput setaf 2; tput bold`
+  local cyan=`tput setaf 6; tput bold`
+  local reset=`tput sgr0`
+  local systemflag=0
+  networksetup -listallnetworkservices | while read line
+  do
+    if [[ $line != *"An asterisk"* ]]; then
+      local systemproxy=$(networksetup -getwebproxy $line | /usr/bin/grep -e '^Enabled:' | awk '{print $2}')
+      if [ $systemproxy = "Yes" ]; then
+        echo "System:  [${green}ON${reset}] $line"
+        systemflag=1
+      fi
+    fi
+  done
+  if [ $systemflag = 0 ]; then
+    echo "System:  [${cyan}No proxy${reset}]"
+  fi
+
+  local count=$(/usr/bin/grep -c 'network.proxy.type' $HOME/Library/Application\ Support/Firefox/Profiles/*/prefs.js)
+  echo -n "Firefox: "
+  if [ $count -gt 1 ]; then
+    echo "Found more than one prefs.js"
+    return -1
+  elif [ $count -eq 0 ]; then
+    if [ $systemflag = 1 ]; then
+      echo "[${green}Use system proxy settings${reset}]"
+      return 1
+    else
+      echo "[${cyan}Use system proxy settings${reset}]"
+      return 0
+    fi
+  else
+    local proxytype=$(/usr/bin/grep 'network.proxy.type' $HOME/Library/Application\ Support/Firefox/Profiles/*/prefs.js | sed 's/[^0-9]//g')
+    # ref. https://developer.mozilla.org/ja/docs/Mozilla_Networking_Preferences
+    case "$proxytype" in
+      0) echo "[${cyan}No proxy${reset}]"; return 0 ;;
+      1) echo "[${green}ON${reset}] Manual proxy configuration" ; return 1 ;;
+      2) echo "[${green}ON${reset}] Automatic proxy configuration URL (PAC)" ; return 1 ;;
+      4) echo "[${green}ON${reset}] Auto-detect proxy settings for this network" ; return 1 ;;
+      *) echo "[${red}UNKNOWN${reset}]" ; return -1 ;;
+    esac
+  fi
+}
+
+
+ffmp4-height () {
+        local h=$1
+        shift
+        red=`tput setaf 1; tput bold`
+        green=`tput setaf 2; tput bold`
+        blue=`tput setaf 4; tput bold`
+        cyan=`tput setaf 6; tput bold`
+        reset=`tput sgr0`
+        while [[ "$1" != "" && -f $1 ]]
+        do
+                out=$1:r-s.mp4
+                array=(`ffsize $1`)
+                if [[ $(( $array[2] <= $h )) == 1 ]]
+                then
+                        echo "${cyan}Skip${reset}: $array[1] x $array[2] : $1"
+                else
+                        echo -n "${cyan}Converting${reset} $1 to hight=$h as $out ... "
+                        ffmpeg -threads $(ncpu) -v 0 -i $1 -vf scale=-2:$h -c:v libx264 -crf 23 -c:a aac -strict -2 $out
+                        if [[ $? = 0 ]]
+                        then
+                                echo "${green}OK${reset}"
+                                copylabel $1 $out
+                                copydate $1 $out
+                        else
+                                echo "${red}Failed${reset}"
+                        fi
+                fi
+                shift
+        done
+}
+
+
+ffsize () {
+        while [[ "$1" != "" && -f $1 ]]
+        do
+                local w=`ffprobe -v error -select_streams v:0 -show_entries stream=width  -of csv=p=0 $1`
+                local h=`ffprobe -v error -select_streams v:0 -show_entries stream=height -of csv=p=0 $1`
+                echo "$w $h $1"
+                shift
+        done
+}
+
+
+ncpu () {
+        if [[ "$OSTYPE" == "linux-gnu" ]]
+        then
+                getconf _NPROCESSORS_ONLN
+        elif _has sysctl
+        then
+                sysctl -n hw.ncpu
+        else
+                echo "1"
+        fi
+}
+
+
+_has() {
+  return $( whence $1 &>/dev/null )
+}
+
+
+copylabel () {
+        if [ $# -lt 2 ]
+        then
+                echo "$0 file1 file2"
+                echo "  will add color label of file1 to file2."
+        else
+                if [[ -f $1 && -f $2 ]]
+                then
+                        local color=`getlabelnum $1`
+                        if [[ "$color" != "0" ]]
+                        then
+                                label $color $2
+                        fi
+                fi
+        fi
+}
+
+
+copydate () {
+        if [ $# -lt 2 ]
+        then
+                echo "$0 file1 file2"
+                echo "  will copy modified date of file1 to file2."
+        else
+                if [[ -f $1 && -f $2 ]]
+                then
+                        local yymmdd=`GetFileInfo $1 | grep modified | awk '{ print $2 }' | perl -lane 'print "$3$1$2" if /(\d+)\/(\d+)\/(\d+)/'`
+                        local hhmm=`GetFileInfo   $1 | grep modified | awk '{ print $3 }' | perl -lane 'print "$1$2\.$3" if /(\d+):(\d+):(\d+)/'`
+                        touch -t ${yymmdd}${hhmm} $2
+                fi
+        fi
+}
