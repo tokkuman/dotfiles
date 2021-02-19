@@ -82,24 +82,6 @@ function getDefaultBrowser() {
   echo $browser
 }
 
-function gitblit() {
-  nsip=$(host fun.bio.keio.ac.jp | head -1 | awk '{print $4}')
-  browser=$(getDefaultBrowser)
-  if [ ${browser} = "com.google.chrome" ]; then
-    browser="org.mozilla.firefox"
-  fi
-  if [ ${nsip} = 192.168.11.2 ]; then
-    # in FUNALAB private network
-    open -b ${browser} http://fun.bio.keio.ac.jp:8080
-  else
-    # outside FUNALAB
-    open -b org.mozilla.firefox https://fun.bio.keio.ac.jp:8443
-  fi
-  unset nsip
-  unset browser
-}
-
-
 function saveenv() {
     dir=$(pyenv version | awk '{ print $1 }')
     reqname="/requirements-${dir}.txt"
