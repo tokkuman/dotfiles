@@ -2,6 +2,7 @@ alias gcc='gcc -Wall -g'
 alias ls='ls -FCGBa'
 alias ll='ls -FCGla'
 
+
 eval "$(pyenv init -)"
 eval "$(pyenv virtualenv-init -)"
 
